@@ -92,5 +92,25 @@
 <div class="texthalf text-normal jumbotron " id="logwindow" style='display:none'></div>
 
 <script src="FighterJetSM-HTML5-Shipping.UE4.js"></script>
+
+<script>
+function enforceLandscape() {
+    if (window.innerHeight > window.innerWidth) {
+        document.getElementById('canvas').style.transform = 'rotate(90deg)';
+        document.getElementById('canvas').style.transformOrigin = 'center center';
+        document.getElementById('canvas').style.width = window.innerHeight + 'px';
+        document.getElementById('canvas').style.height = window.innerWidth + 'px';
+    } else {
+        document.getElementById('canvas').style.transform = '';
+        document.getElementById('canvas').style.width = window.innerWidth + 'px';
+        document.getElementById('canvas').style.height = window.innerHeight + 'px';
+    }
+}
+
+// Run on resize or fullscreen change
+window.addEventListener('resize', enforceLandscape);
+document.addEventListener('fullscreenchange', enforceLandscape);
+</script>
+
 </body>
 </html>
