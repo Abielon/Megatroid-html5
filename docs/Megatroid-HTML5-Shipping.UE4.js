@@ -75,7 +75,7 @@ var Module = {
 	assetDownloadProgress: {}, // Track how many bytes of each needed asset has been downloaded so far.
 
 	UE4_indexedDBName: 'UE4_assetDatabase_Megatroid', // this should be an ascii ID string without special characters that is unique to the project that is being packaged
-	UE4_indexedDBVersion: 202509081110, // Bump this number to invalidate existing IDB storages in browsers.
+	UE4_indexedDBVersion: 202509081635, // Bump this number to invalidate existing IDB storages in browsers.
 };
 
 
@@ -453,8 +453,7 @@ Module['UE4_fullscreenFilteringMode'] = 0;
 
 var enableReadFromIndexedDB = (location.search.indexOf('noidbread') == -1);
 var enableWriteToIndexedDB = enableReadFromIndexedDB && (location.search.indexOf('noidbwrite') == -1);
-enableReadFromIndexedDB = false;
-enableWriteToIndexedDB = false;
+
 
 if (!enableReadFromIndexedDB) console.log('Running with IndexedDB access disabled.');
 else if (!enableWriteToIndexedDB) console.log('Running in read-only IndexedDB access mode.');
