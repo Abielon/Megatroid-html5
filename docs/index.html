@@ -12,7 +12,7 @@
 
 <html lang="en">
 <head>
-	<title>FighterJetSM</title>
+	<title>Megatroid</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -28,29 +28,7 @@
 	<!-- https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/fonts/glyphicons-halflings-regular.woff -->
 	<!-- https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/fonts/glyphicons-halflings-regular.ttf -->
 
-	<link href="FighterJetSM-HTML5-Shipping.css" rel="stylesheet">
-<style>
-/* Metallic gold border style */
-#canvas {
-    border: 5px solid;         /* Half thickness */
-    border-radius: 20px;       /* Rounder corners */
-
-    /* Gradient metallic effect */
-    border-image: linear-gradient(
-        135deg,
-        #b8860b,   /* dark goldenrod */
-        #ffd700,   /* pure gold */
-        #fff8dc,   /* light cream highlight */
-        #daa520,   /* goldenrod */
-        #ffd700,   /* back to gold */
-        #b8860b    /* darker edge */
-    ) 1;
-
-    /* Optional glow effect */
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.6),
-                0 0 40px rgba(218, 165, 32, 0.4);
-}
-</style>
+	<link href="Megatroid-HTML5-Shipping.css" rel="stylesheet">
 </head>
 <body>
 
@@ -59,10 +37,15 @@
 		<div id='loadTasks'> </div>
 	</div>
 	<!-- The "tabindex=0" specifier on the canvas is important to allow it to capture keyboard focus when clicking on it with a mouse -->
- <canvas tabindex=0 id="canvas" class="emscripten" oncontextmenu="event.preventDefault()" style="display:none;">
- </canvas>
+	<canvas tabindex=0 id="canvas" class="emscripten" oncontextmenu="event.preventDefault()" style="display:none;">
 </div>
 <div class="buttonarea text-center" id="buttonarea">
+	<!--
+	<button type="button" class="btn btn-primary" id="exit_pointerlock" title="Exit Pointerlock" style="display:none">
+		<span class="glyphicon glyphicon-hand-up" aria-hidden="true"></span>
+		<span class="buttontext">&nbsp;Exit Pointerlock</span>
+	</button>
+	-->
 	
 	<button type="button" class="btn btn-primary" id="about" data-toggle="modal" data-target="#aboutModal" title="$Abielon">
 		<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
@@ -80,12 +63,12 @@
 	</button>
 	
 	<!--<button type="button" class="btn btn-primary" onclick="var w = document.getElementById('logwindow'); w.style.display = w.style.display ? '' : 'none';">Toggle Log</button></div>-->
-	
+	<!--
 	<button type="button" class="btn btn-primary" id="clear_indexeddb" onclick="try { deleteIndexedDBStorage(); } catch(e) {console.error(e);}" title="Clear IndexedDB" style="display:none">
 		<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
 		<span class="buttontext">&nbsp;Clear IndexedDB</span>
 	</button>
-	
+	-->
 	
 	<button type="button" class="btn btn-primary" id="fullscreen_request" title="Fullscreen" style="display:none">
 		<span class="glyphicon glyphicon-fullscreen" aria-hidden="true"></span>
@@ -114,6 +97,6 @@
 
 <div class="texthalf text-normal jumbotron " id="logwindow" style='display:none'></div>
 
-<script src="FighterJetSM-HTML5-Shipping.UE4.js"></script>
+<script src="Megatroid-HTML5-Shipping.UE4.js"></script>
 </body>
 </html>
