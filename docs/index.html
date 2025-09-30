@@ -75,14 +75,60 @@
 		<span class="buttontext">&nbsp;Fullscreen</span>
 	</button>
 	
+	
 	<script>
 (function(){
   const fsBtn = document.getElementById('fullscreen_request');
   const target = document.getElementById('canvas') || document.getElementById('mainarea') || document.documentElement;
 
-  async function requestFSAndLock() {
+  // Simple fullscreen-only handler used after the first successful run
+  function simpleFullscreen() {
+    if (target.requestFullscreen) return target.requestFullscreen();
+    if (target.webkitRequestFullscreen) return target.webkitRequestFullscreen();
+    if (target.msRequestFullscreen) return target.msRequestFullscreen();
+    return Promise.reject(new Error('No fullscreen API'));
+  }
+
+  // Try to lock to landscape once we are in fullscreen
+  async function tryLockLandscape() {
     try {
-      // Request fullscreen directly from the user gesture
+      if (screen.orientation && screen.orientation.lock) {
+        await screen.orientation.lock('landscape-primary');
+        return true;
+      } else if (screen.lockOrientation || screen.mozLockOrientation || screen.msLockOrientation) {
+        const lockFn = screen.lockOrientation || screen.mozLockOrientation || screen.msLockOrientation;
+        lockFn.call(screen, 'landscape');
+        return true;
+      }
+    } catch (e) {
+      console.warn('Orientation lock failed', e);
+    }
+    return false;
+  }
+
+  // Called when fullscreen state changes
+  async function onFullscreenChange() {
+    const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+    if (isFs) {
+      const locked = await tryLockLandscape();
+      if (!locked) {
+        document.documentElement.classList.add('force-landscape-fallback');
+      } else {
+        document.documentElement.classList.remove('force-landscape-fallback');
+      }
+    } else {
+      if (screen.orientation && screen.orientation.unlock) {
+        try { screen.orientation.unlock(); } catch(e) {}
+      }
+      document.documentElement.classList.remove('force-landscape-fallback');
+    }
+  }
+
+  // First-time handler: requests fullscreen, waits for fullscreenchange, attempts lock,
+  // then replaces click handler with the simpler function.
+  async function firstTimeHandler(ev) {
+    // Keep this synchronous as much as possible (called directly from the user gesture)
+    try {
       if (target.requestFullscreen) {
         await target.requestFullscreen();
       } else if (target.webkitRequestFullscreen) {
@@ -93,109 +139,41 @@
         console.warn('No fullscreen API available');
         return;
       }
-      // Now wait for fullscreenchange event to fire — lock will be attempted there
     } catch (err) {
       console.warn('requestFullscreen failed', err);
+      return;
     }
-  }
 
-  async function tryLockLandscape() {
-    try {
-      if (screen.orientation && screen.orientation.lock) {
-        // Try strongest explicit lock first
-        await screen.orientation.lock('landscape-primary');
-        console.log('Orientation locked to landscape-primary');
-        return true;
-      } else if (screen.lockOrientation || screen.mozLockOrientation || screen.msLockOrientation) {
-        const lockFn = screen.lockOrientation || screen.mozLockOrientation || screen.msLockOrientation;
-        lockFn.call(screen, 'landscape');
-        console.log('Orientation locked (legacy API)');
-        return true;
-      } else {
-        console.warn('Orientation lock not supported');
-      }
-    } catch (err) {
-      console.warn('Orientation lock failed', err);
-    }
-    return false;
-  }
-
-  // Fullscreen change handler: called when fullscreen state actually changes
-  async function onFullscreenChange() {
-    const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
-    if (isFs) {
-      const locked = await tryLockLandscape();
-      if (!locked) {
-        // fallback for platforms that won't lock (iOS): apply CSS rotate
-        document.documentElement.classList.add('force-landscape-fallback');
-      } else {
-        document.documentElement.classList.remove('force-landscape-fallback');
-      }
+    // Wait a tick for fullscreenchange to fire and handle locking there too, but also attempt immediately
+    // because some browsers allow locking right after a user gesture + requestFullscreen
+    const locked = await tryLockLandscape();
+    if (!locked) {
+      // the fullscreenchange handler will attempt lock again; apply CSS fallback if necessary
+      document.documentElement.classList.add('force-landscape-fallback');
     } else {
-      // Exited fullscreen — unlock and cleanup
-      if (screen.orientation && screen.orientation.unlock) {
-        try { screen.orientation.unlock(); } catch(e) {}
-      }
       document.documentElement.classList.remove('force-landscape-fallback');
     }
+
+    // Replace the click handler with the simpler one for future clicks
+    fsBtn.removeEventListener('click', firstTimeHandler);
+    fsBtn.addEventListener('click', () => { simpleFullscreen().catch(e => console.warn(e)); });
+
+    // Optionally: if you want to immediately remove the try-lock logic after success, you can
+    // remove the fullscreenchange listener too below (if you added one earlier).
   }
 
-  // Hook events
-  fsBtn.addEventListener('click', requestFSAndLock, false);
+  // Register handlers
+  fsBtn.addEventListener('click', firstTimeHandler, false);
   document.addEventListener('fullscreenchange', onFullscreenChange);
   document.addEventListener('webkitfullscreenchange', onFullscreenChange);
   document.addEventListener('msfullscreenchange', onFullscreenChange);
 
-  // Optional: allow pressing the canvas to trigger fullscreen on mobile if the button is hidden
-  // canvas.addEventListener('click', requestFSAndLock);
+  // Optional CSS fallback class (same as previously suggested)
+  // .force-landscape-fallback { width:100vh; height:100vw; transform:rotate(90deg) translateY(-100%); transform-origin:top left; overflow:hidden; }
+
 })();
 </script>
 
-	
-	<script>
-const fullBtn = document.getElementById('fullscreen_request');
-const target = document.documentElement; // or a specific container element
-
-async function enterFullscreenAndLockLandscape() {
-  try {
-    // Request fullscreen
-    if (target.requestFullscreen) {
-      await target.requestFullscreen();
-    } else if (target.webkitRequestFullscreen) {
-      await target.webkitRequestFullscreen(); // Safari older prefix
-    } else if (target.msRequestFullscreen) {
-      await target.msRequestFullscreen();
-    }
-
-    // Try to lock orientation to landscape
-    if (screen.orientation && screen.orientation.lock) {
-      await screen.orientation.lock('landscape');
-    } else if (screen.lockOrientation || screen.mozLockOrientation || screen.msLockOrientation) {
-      // older vendor methods
-      const lockFn = screen.lockOrientation || screen.mozLockOrientation || screen.msLockOrientation;
-      lockFn.call(screen, 'landscape');
-    } else {
-      // No orientation lock support — CSS fallback handled elsewhere
-      console.warn('Orientation lock not available; applying visual fallback.');
-      applyCssLandscapeFallback();
-    }
-  } catch (err) {
-    console.warn('Fullscreen/orientation lock failed:', err);
-    // If orientation lock fails but we're in fullscreen, still apply fallback
-    if (document.fullscreenElement || document.webkitIsFullScreen) {
-      applyCssLandscapeFallback();
-    }
-  }
-}
-
-function applyCssLandscapeFallback() {
-  // Add a class to your root/container to rotate content 90deg and center it.
-  // Use only when orientation lock is not available (e.g., iOS Safari).
-  document.documentElement.classList.add('force-landscape-fallback');
-}
-
-fullBtn.addEventListener('click', enterFullscreenAndLockLandscape);
-</script>
 	
 </div>
 
