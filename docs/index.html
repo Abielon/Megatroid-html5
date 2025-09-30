@@ -70,10 +70,56 @@
 	</button>
 	
 	
-	<button type="button" class="btn btn-primary" id="fullscreen_request" title="Fullscreen" style="display:none">
-		<span class="glyphicon glyphicon-fullscreen" aria-hidden="true"></span>
-		<span class="buttontext">&nbsp;Fullscreen</span>
-	</button>
+<button id="fullscreen_request" class="btn btn-primary" title="Fullscreen" style="display:none">
+  <span class="glyphicon glyphicon-fullscreen" aria-hidden="true"></span>
+  <span class="buttontext">&nbsp;Fullscreen</span>
+</button>
+
+<script>
+const fullBtn = document.getElementById('fullscreen_request');
+const target = document.documentElement; // or a specific container element
+
+async function enterFullscreenAndLockLandscape() {
+  try {
+    // Request fullscreen
+    if (target.requestFullscreen) {
+      await target.requestFullscreen();
+    } else if (target.webkitRequestFullscreen) {
+      await target.webkitRequestFullscreen(); // Safari older prefix
+    } else if (target.msRequestFullscreen) {
+      await target.msRequestFullscreen();
+    }
+
+    // Try to lock orientation to landscape
+    if (screen.orientation && screen.orientation.lock) {
+      await screen.orientation.lock('landscape');
+    } else if (screen.lockOrientation || screen.mozLockOrientation || screen.msLockOrientation) {
+      // older vendor methods
+      const lockFn = screen.lockOrientation || screen.mozLockOrientation || screen.msLockOrientation;
+      lockFn.call(screen, 'landscape');
+    } else {
+      // No orientation lock support — CSS fallback handled elsewhere
+      console.warn('Orientation lock not available; applying visual fallback.');
+      applyCssLandscapeFallback();
+    }
+  } catch (err) {
+    console.warn('Fullscreen/orientation lock failed:', err);
+    // If orientation lock fails but we're in fullscreen, still apply fallback
+    if (document.fullscreenElement || document.webkitIsFullScreen) {
+      applyCssLandscapeFallback();
+    }
+  }
+}
+
+function applyCssLandscapeFallback() {
+  // Add a class to your root/container to rotate content 90deg and center it.
+  // Use only when orientation lock is not available (e.g., iOS Safari).
+  document.documentElement.classList.add('force-landscape-fallback');
+}
+
+fullBtn.addEventListener('click', enterFullscreenAndLockLandscape);
+</script>
+
 	
 </div>
 
