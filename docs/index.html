@@ -70,12 +70,12 @@
 	</button>
 	
 	
-<button id="fullscreen_request" class="btn btn-primary" title="Fullscreen" style="display:none">
-  <span class="glyphicon glyphicon-fullscreen" aria-hidden="true"></span>
-  <span class="buttontext">&nbsp;Fullscreen</span>
-</button>
-
-<script>
+	<button type="button" class="btn btn-primary" id="fullscreen_request" title="Fullscreen" style="display:none">
+		<span class="glyphicon glyphicon-fullscreen" aria-hidden="true"></span>
+		<span class="buttontext">&nbsp;Fullscreen</span>
+	</button>
+	
+	<script>
 const fullBtn = document.getElementById('fullscreen_request');
 const target = document.documentElement; // or a specific container element
 
@@ -119,7 +119,6 @@ function applyCssLandscapeFallback() {
 
 fullBtn.addEventListener('click', enterFullscreenAndLockLandscape);
 </script>
-
 	
 </div>
 
